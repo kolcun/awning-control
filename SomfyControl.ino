@@ -11,7 +11,7 @@ const char* password = "Australia";
 char* espTopic = "kolcun/indoor/esp";
 char* controlTopic = "kolcun/outdoor/awning";
 char* stateTopic = "kolcun/outdoor/awning/state";
-char* server = "52.90.29.252";//"ec2-52-90-29-252.compute-1.amazonaws.com";
+char* server = "54.156.244.62";
 char* mqttMessage;
 
 WiFiClient wifiClient;
@@ -40,7 +40,7 @@ void setup() {
 
 void reconnect() {
   while (!pubSubClient.connected()) {
-    if (pubSubClient.connect("mkol123", "kolcun", "MosquittoMQTTPassword$isVeryLong123")) {
+    if (pubSubClient.connect("somfycontroller", "kolcun", "MosquittoMQTTPassword$isVeryLong123")) {
       Serial.println("Connected to MQTT broker");
       pubSubClient.publish(espTopic, "somfy control online");
       if (!pubSubClient.subscribe(controlTopic, 1)) {
@@ -96,13 +96,13 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   mqttMessage = (char*) payload;
 
   if (strcmp(topic, controlTopic) == 0) {
-    if (strncmp(mqttMessage, "in", length) == 0) {
+    if (strncmp(mqttMessage, "in", length-1) == 0) {
       Serial.println("Awning In");
       closeAwning();
-    } else if (strncmp(mqttMessage, "out", length) == 0) {
+    } else if (strncmp(mqttMessage, "out", length-1) == 0) {
       Serial.println("Awning out");
       openAwning();
-    } else if (strncmp(mqttMessage, "stop", length) == 0) {
+    } else if (strncmp(mqttMessage, "stop", length-1) == 0) {
       Serial.println("Awning stop");
       stopAwning();
     }
