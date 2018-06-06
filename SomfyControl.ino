@@ -24,6 +24,7 @@ void setup() {
   pinMode(IN, OUTPUT);
   pinMode(OUT, OUTPUT);
   pinMode(STOP, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT); 
   digitalWrite(IN, HIGH);
   digitalWrite(OUT, HIGH);
   digitalWrite(STOP, HIGH);
@@ -81,7 +82,7 @@ void connectToWifi() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
+  blink3Times();
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
@@ -107,6 +108,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
       stopAwning();
     }
   }
+  blinkMessageArrived();
 
 }
 
@@ -131,6 +133,32 @@ void stopAwning() {
   delay(250);
   digitalWrite(STOP, HIGH);
 
+}
+
+void blinkMessageArrived() {
+  turnOnLed();
+  delay(100);
+  turnOffLed();
+}
+
+void blink3Times() {
+  for (int i = 0; i < 3; i++) {
+    turnOnLed();
+    delay(500);
+    turnOffLed();
+    delay(500);
+  }
+  delay(2000);
+}
+
+void turnOnLed() {
+  Serial.println("led on");
+  digitalWrite(LED_BUILTIN, LOW);
+}
+
+void turnOffLed() {
+  Serial.println("led off");
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 
