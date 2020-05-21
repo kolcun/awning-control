@@ -1,17 +1,18 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
+#include "credentials.h"
 
 #define IN  D1
 #define OUT D3
 #define STOP D2
 
-const char* ssid = "KrispyNet";
-const char* password = "Australia";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWD;
 
 char* espTopic = "kolcun/indoor/esp";
 char* controlTopic = "kolcun/outdoor/awning";
 char* stateTopic = "kolcun/outdoor/awning/state";
-char* server = "54.156.244.62";
+char* server = MQTT_SERVER;
 char* mqttMessage;
 
 WiFiClient wifiClient;
@@ -41,7 +42,7 @@ void setup() {
 
 void reconnect() {
   while (!pubSubClient.connected()) {
-    if (pubSubClient.connect("somfycontroller", "kolcun", "MosquittoMQTTPassword$isVeryLong123")) {
+    if (pubSubClient.connect("somfycontroller", MQTT_USER, MQTT_PASSWD)) {
       Serial.println("Connected to MQTT broker");
       pubSubClient.publish(espTopic, "somfy control online");
       if (!pubSubClient.subscribe(controlTopic, 1)) {
@@ -160,6 +161,3 @@ void turnOffLed() {
   Serial.println("led off");
   digitalWrite(LED_BUILTIN, HIGH);
 }
-
-
-
