@@ -128,36 +128,36 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   mqttMessage = (char*) payload;
 
   if (strcmp(topic, controlTopic) == 0) {
-    if (strncmp(mqttMessage, "in", length - 1) == 0) {
-      Serial.println("Awning In");
+    if (strncmp(mqttMessage, "UP", length - 1) == 0) {
+      Serial.println("Awning closing");
       closeAwning();
-    } else if (strncmp(mqttMessage, "out", length - 1) == 0) {
-      Serial.println("Awning out");
+    } else if (strncmp(mqttMessage, "DOWN", length - 1) == 0) {
+      Serial.println("Awning opening");
       openAwning();
-    } else if (strncmp(mqttMessage, "stop", length - 1) == 0) {
-      Serial.println("Awning stop");
+    } else if (strncmp(mqttMessage, "STOP", length - 1) == 0) {
+      Serial.println("Awning stop / setpoint");
       stopAwning();
     }
   }
 }
 
-void openAwning() {
-  pubSubClient.publish(stateTopic, "out");
+void openAwning() { //openhab rollershutter up == 0, upward arrow
+  pubSubClient.publish(stateTopic, "UP");
   digitalWrite(OUT, LOW);
   delay(250);
   digitalWrite(OUT, HIGH);
 }
 
-void closeAwning() {
-  pubSubClient.publish(stateTopic, "in");
+void closeAwning() { //openhab rollershutter down == 100, downward arrow
+  pubSubClient.publish(stateTopic, "DOWN");
   digitalWrite(IN, LOW);
   delay(250);
   digitalWrite(IN, HIGH);
 
 }
 
-void stopAwning() {
-  pubSubClient.publish(stateTopic, "stop");
+void stopAwning() { 
+  pubSubClient.publish(stateTopic, "STOP");
   digitalWrite(STOP, LOW);
   delay(250);
   digitalWrite(STOP, HIGH);
