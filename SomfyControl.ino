@@ -141,15 +141,15 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-void openAwning() { //openhab rollershutter up == 0, upward arrow
-  pubSubClient.publish(stateTopic, "UP");
+void openAwning() { //openhab rollershutter down == 100, downward arrow
+  pubSubClient.publish(stateTopic, "DOWN");
   digitalWrite(OUT, LOW);
   delay(250);
   digitalWrite(OUT, HIGH);
 }
 
-void closeAwning() { //openhab rollershutter down == 100, downward arrow
-  pubSubClient.publish(stateTopic, "DOWN");
+void closeAwning() { //openhab rollershutter up == 0, upward arrow
+  pubSubClient.publish(stateTopic, "UP");
   digitalWrite(IN, LOW);
   delay(250);
   digitalWrite(IN, HIGH);
