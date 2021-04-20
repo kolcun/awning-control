@@ -7,6 +7,10 @@
 #define IN  D1
 #define OUT D3
 #define STOP D2
+#define PERGOLAIN  D5
+#define PERGOLAOUT D7
+#define PERGOLASTOP D6
+
 #define HOSTNAME "AwningControl"
 
 const char* ssid = WIFI_SSID;
@@ -15,6 +19,9 @@ const char* password = WIFI_PASSWD;
 char* espTopic = "kolcun/indoor/esp";
 char* controlTopic = "kolcun/outdoor/awning";
 char* stateTopic = "kolcun/outdoor/awning/state";
+char* pergolaControlTopic = "kolcun/outdoor/pergolascreen";
+char* pergolaStateTopic = "kolcun/outdoor/pergolascreen/state";
+
 char* server = MQTT_SERVER;
 char* mqttMessage;
 
@@ -29,10 +36,16 @@ void setup() {
   pinMode(IN, OUTPUT);
   pinMode(OUT, OUTPUT);
   pinMode(STOP, OUTPUT);
+  pinMode(PERGOLAIN, OUTPUT);
+  pinMode(PERGOLAOUT, OUTPUT);
+  pinMode(PERGOLASTOP, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(IN, HIGH);
   digitalWrite(OUT, HIGH);
   digitalWrite(STOP, HIGH);
+  digitalWrite(PERGOLAIN, HIGH);
+  digitalWrite(PERGOLAOUT, HIGH);
+  digitalWrite(PERGOLASTOP, HIGH);
 
   pubSubClient.setServer(server, 1883);
   pubSubClient.setCallback(mqttCallback);
@@ -48,6 +61,9 @@ void reconnect() {
       Serial.println("Connected to MQTT broker");
       pubSubClient.publish(espTopic, "somfy control online");
       if (!pubSubClient.subscribe(controlTopic, 1)) {
+        Serial.println("MQTT: unable to subscribe");
+      }
+      if (!pubSubClient.subscribe(pergolaControlTopic, 1)) {
         Serial.println("MQTT: unable to subscribe");
       }
     } else {
@@ -139,6 +155,18 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
       stopAwning();
     }
   }
+  if (strcmp(topic, pergolaControlTopic) == 0) {
+    if (strncmp(mqttMessage, "UP", length - 1) == 0) {
+      Serial.println("Pergola screen closing");
+      closePergolaScreen();
+    } else if (strncmp(mqttMessage, "DOWN", length - 1) == 0) {
+      Serial.println("Pergola screen opening");
+      openPergolaScreen();
+    } else if (strncmp(mqttMessage, "STOP", length - 1) == 0) {
+      Serial.println("Pergola screen stop / setpoint");
+      stopPergolaScreen();
+    }
+  }
 }
 
 void openAwning() { //openhab rollershutter down == 100, downward arrow
@@ -156,10 +184,30 @@ void closeAwning() { //openhab rollershutter up == 0, upward arrow
 
 }
 
-void stopAwning() { 
+void stopAwning() {
   pubSubClient.publish(stateTopic, "STOP");
   digitalWrite(STOP, LOW);
   delay(250);
   digitalWrite(STOP, HIGH);
+}
 
+void openPergolaScreen() { //openhab rollershutter down == 100, downward arrow
+  pubSubClient.publish(pergolaStateTopic, "DOWN");
+  digitalWrite(PERGOLAOUT, LOW);
+  delay(250);
+  digitalWrite(PERGOLAOUT, HIGH);
+}
+
+void closePergolaScreen() { //openhab rollershutter up == 0, upward arrow
+  pubSubClient.publish(pergolaStateTopic, "UP");
+  digitalWrite(PERGOLAIN, LOW);
+  delay(250);
+  digitalWrite(PERGOLAIN, HIGH);
+}
+
+void stopPergolaScreen() {
+  pubSubClient.publish(pergolaStateTopic, "STOP");
+  digitalWrite(PERGOLASTOP, LOW);
+  delay(250);
+  digitalWrite(PERGOLASTOP, HIGH);
 }
